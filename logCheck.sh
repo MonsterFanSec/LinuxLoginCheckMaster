@@ -53,3 +53,4 @@ for ip in $BadName;do
 			break
 	fi
 done
+	
