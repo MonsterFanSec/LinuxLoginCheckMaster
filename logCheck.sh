@@ -1,6 +1,6 @@
 #!/bin/bash
 #author:monster
-#2022/5/12
+#2022/5/11
 echo "#########################################"
 echo "#          linux-secure日志审查系统     #"
 echo "#########################################"
@@ -14,7 +14,8 @@ BadIP=$(cat /var/log/secure | grep "Failed password for" | grep -o -E "([0-9]{1,
 BadName=$(cat /var/log/secure | grep "Failed password for"| awk '{print $1,$2,$3,$9,$10,$11}' | uniq -u | awk '{a[$4]++} END {for(i in a){print i,a[i]}}' | sort -n -r -k 2)
 
 cat /var/log/secure | grep "Accepted" | awk '{print $11;}' | uniq | sort | awk '{print $2,$1}'>login_success
-cat /var/log/secure | grep "Failed password for" | grep -o -E "([0-9]{1,3}\.){3}([0-9]){1,3}" | uniq -c | awk '{a[$2]++} END {for(i in a){print i,a[i]}}' | sort -n -r -k 2 > badIP
+#破解次数大于10的定义为恶意IP
+cat /var/log/secure | grep "Failed password for" | grep -o -E "([0-9]{1,3}\.){3}([0-9]){1,3}" | uniq -c | awk '{a[$2]++} END {for(i in a){print i}}' | sort -n -r -k 2 | awk -F ' '  '$1>10{print $0}' > badIP
 cat /var/log/secure  | grep "Failed password\|Accepted password" > ssh_login_file 
 
 echo "成功登入次数："$loginNums
@@ -42,7 +43,7 @@ done
 
 
 echo "#########################################"
-echo "#          尝试爆破ssh服务的恶意IP地址     #"
+echo "#       尝试爆破ssh服务的恶意IP地址     #"
 echo "#########################################"
 echo "尝试爆破ssh的恶意IP："
 time=0
@@ -56,7 +57,7 @@ for ip in $BadIP;do
 		then
 			echo "   攻击次数 "$ip
 	fi
-	if [ $time -eq 20 ]
+	if [ $time -eq 10 ]
 		then
 			break
 	fi
@@ -73,14 +74,14 @@ for ip in $BadName;do
 		then
 			echo "   破解次数 "$ip
 	fi
-	if [ $time -eq 20 ]
+	if [ $time -eq 10 ]
 		then
 			break
 	fi
 done
-
+#
 rm -rf login_success
-rm -rf badIP
+#rm -rf badIP
 rm -rf ssh_login_file
 
 
