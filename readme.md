@@ -8,6 +8,8 @@ Shell脚本程序监控程序
 
 2022/5/12 更新 SSH破解检测，检测成功破解SSH服务的恶意IP信息
 
+2022/5/12 更新自动将恶意IP添加到SSH黑名单
+
 ## 使用说明
 
 首先将shell脚本放入某个目录下，并使用chmod赋权
@@ -52,7 +54,7 @@ cd /root/logCheck && echo >> login.log && date >> login.log && ./logCheck.sh >> 
 
 执行命令后将在设定目录下生成新的日志文件
 
-![image-20220511085914812](readme.assets/image-20220511085914812.png)
+![image-20220512204938011](readme.assets/image-20220512204938011.png)
 
 通过检索日志文件可以快速锁定恶意IP，并检查服务器是否被破解
 
