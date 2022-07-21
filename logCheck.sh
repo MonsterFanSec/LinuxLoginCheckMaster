@@ -1,6 +1,6 @@
 #!/bin/bash
 #author:monster
-#2022/5/11
+#2022/7/21
 echo "#########################################"
 echo "#          linux-secure日志审查系统     #"
 echo "#########################################"
@@ -33,6 +33,7 @@ do
 	then
 		echo "*** 警告：SSH服务已被破解 ***"
 		inf=$(cat ssh_login_file | grep $line1 | grep "Accepted")
+		#echo $inf
 		user=$(echo $inf | awk -F" " '{print "ip:"$11 ":"$13"\t\t time: "$1,$2,$3"\t user:" $9 "\t\t state:Accepted"}')
 		echo "详细信息   "$user
 		echo "***************************"
@@ -79,10 +80,28 @@ for ip in $BadName;do
 			break
 	fi
 done
+#! /bin/bash
+# 获取所有登陆失败的信息，并将信息写入文件
+
+cat /var/log/secure|awk '/Failed/{print $(NF-3)}'|sort|uniq -c|awk '{print $2"="$1;}' > loginFailed.txt
+#遍历文件
+for i in `cat loginFailed.txt`
+do
+IP=`echo $i |awk -F= '{print $1}'`
+NUM=`echo $i|awk -F= '{print $2}'`
+#如果登陆失败次数大于10，则将IP写入黑名单
+if (( $NUM > 10 )) ; then
+	grep $IP /etc/hosts.deny > /dev/null
+	#判断上一语句的执行结果，如果返回值大于0则将IP写入ssh的黑名单
+	if [ $? -gt 0 ];then
+	echo "sshd:$IP:deny" >> /etc/hosts.deny
+	fi
+fi
+done
+echo "失败次数大于10次的IP已自动封禁，您可以查看配置文件/etc/hosts.deny已获取详信息"
 #
 rm -rf login_success
-#rm -rf badIP
+rm -rf badIP
 rm -rf ssh_login_file
-
 
 
