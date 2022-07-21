@@ -61,3 +61,8 @@ cd /root/logCheck && echo >> login.log && date >> login.log && ./logCheck.sh >> 
 通过检索日志文件可以快速锁定恶意IP，并检查服务器是否被破解
 
 ![image-20220512201513915](readme.assets/image-20220512201513915.png)
+
+## 7-21日更新
+
+新增自动将破解次数大于10次的恶意IP封禁的功能
+
